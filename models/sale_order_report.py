@@ -55,14 +55,18 @@ class SaleOrder(models.Model):
         for order in self:
             total = 0.0
             for line in order.order_line:
-                subtotal = line.qty_delivered * line.price_unit if line.qty_delivered and line.price_unit else 0.0
-                subtotal_after_discount = subtotal * (1 - (line.discount or 0.0) / 100.0)
-                taxes = line.tax_id.compute_all(
-                    subtotal_after_discount,
-                    order.currency_id,
-                    line.qty_delivered,
-                    product=line.product_id,
-                    partner=order.partner_id
-                ) if line.tax_id else {'total_included': subtotal_after_discount}
-                total += taxes['total_included']
+                if line.qty_delivered > 0:
+                    subtotal = line.qty_delivered * line.price_unit
+                    subtotal_after_discount = subtotal * (1 - (line.discount or 0.0) / 100.0)
+                    
+                    taxes = line.tax_id.compute_all(
+                        subtotal_after_discount,
+                        order.currency_id,
+                        line.qty_delivered,
+                        product=line.product_id,
+                        partner=order.partner_id
+                    ) if line.tax_id else {'total_included': subtotal_after_discount}
+
+                    total += taxes['total_included']
+
             order.price_total_qty_delivered = total
