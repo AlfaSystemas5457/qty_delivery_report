@@ -56,9 +56,12 @@ class SaleOrder(models.Model):
             total = 0.0
             for line in order.order_line:
                 if line.qty_delivered > 0:
+                    # Calcular el subtotal basado en lo entregado
                     subtotal = line.qty_delivered * line.price_unit
+                    # Aplicar descuento sobre el subtotal
                     subtotal_after_discount = subtotal * (1 - (line.discount or 0.0) / 100.0)
-                    
+
+                    # Calcular impuestos solo sobre el subtotal después del descuento
                     taxes = line.tax_id.compute_all(
                         subtotal_after_discount,
                         order.currency_id,
@@ -67,6 +70,9 @@ class SaleOrder(models.Model):
                         partner=order.partner_id
                     ) if line.tax_id else {'total_included': subtotal_after_discount}
 
+                    # Asegúrate de sumar solo el monto total después de impuestos
                     total += taxes['total_included']
 
+            # Asignar el valor calculado a price_total_qty_delivered
             order.price_total_qty_delivered = total
+
