@@ -6,9 +6,9 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     price_subtotal_qty_delivered = fields.Float(
-        'Subtotal Qty Delivered', compute='_compute_price_subtotal_qty_delivered', store=True)
+        'Subtotal Qty Delivered', compute='_compute_price_subtotal_qty_delivered', store=False)
     price_total_qty_delivered = fields.Float(
-        'Total Qty Delivered', compute='_compute_price_total_qty_delivered', store=True)
+        'Total Qty Delivered', compute='_compute_price_total_qty_delivered', store=False)
     
     qty_delivered_amount_by_group = fields.Binary(
         string="Delivered Amount by Group", 
@@ -56,23 +56,30 @@ class SaleOrder(models.Model):
             total = 0.0
             for line in order.order_line:
                 if line.qty_delivered > 0:
-                    # Calcular el subtotal basado en lo entregado
+                    # Calcular el subtotal basado en la cantidad entregada
                     subtotal = line.qty_delivered * line.price_unit
                     # Aplicar descuento sobre el subtotal
                     subtotal_after_discount = subtotal * (1 - (line.discount or 0.0) / 100.0)
 
-                    # Calcular impuestos solo sobre el subtotal después del descuento
-                    taxes = line.tax_id.compute_all(
-                        subtotal_after_discount,
-                        order.currency_id,
-                        line.qty_delivered,
-                        product=line.product_id,
-                        partner=order.partner_id
-                    ) if line.tax_id else {'total_included': subtotal_after_discount}
+                    # Si hay impuestos, calcular sobre el subtotal después del descuento
+                    if line.tax_id:
+                        # Calcular impuestos solo sobre el subtotal después del descuento
+                        tax_details = line.tax_id.compute_all(
+                            subtotal_after_discount,
+                            order.currency_id,
+                            line.qty_delivered,
+                            product=line.product_id,
+                            partner=order.partner_id
+                        )
+                        total_included = tax_details['total_included']  # Impuesto incluido
+                    else:
+                        # Si no hay impuestos, el total es solo el subtotal después del descuento
+                        total_included = subtotal_after_discount
 
-                    # Asegúrate de sumar solo el monto total después de impuestos
-                    total += taxes['total_included']
+                    # Acumulamos el total después de impuestos
+                    total += total_included
 
             # Asignar el valor calculado a price_total_qty_delivered
             order.price_total_qty_delivered = total
+
 
