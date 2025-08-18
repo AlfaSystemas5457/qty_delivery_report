@@ -6,9 +6,9 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     price_subtotal_qty_delivered = fields.Float(
-        'Subtotal Qty Delivered', compute='_compute_price_subtotal_qty_delivered', store=False)
+        'Subtotal Qty Delivered', compute='_compute_price_subtotal_qty_delivered', store=True)
     price_total_qty_delivered = fields.Float(
-        'Total Qty Delivered', compute='_compute_price_total_qty_delivered', store=False)
+        'Total Qty Delivered', compute='_compute_price_total_qty_delivered', store=True)
     
     qty_delivered_amount_by_group = fields.Binary(
         string="Delivered Amount by Group", 
