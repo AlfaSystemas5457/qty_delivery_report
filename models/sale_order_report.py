@@ -58,23 +58,25 @@ class SaleOrder(models.Model):
             total = 0.0
             for line in order.order_line:
                 if line.qty_delivered > 0:
+                    # Calcular el precio con descuento
+                    price_with_discount = line.price_unit * (1.0 - line.discount / 100.0)
                     # Calcular el subtotal basado en lo entregado (sin descuentos)
-                    subtotal = line.qty_delivered * line.price_unit
+                    subtotal = line.qty_delivered * price_with_discount
                     log_lines.append(f"Subtotal sin descuento (line {line.id}): {subtotal}")
+                    total_included = 0.0
                     
-                    # Calcular impuestos sobre el subtotal sin descuento
+                    # Verificar si hay impuestos asignados
                     if line.tax_id:
-                        # Calcular impuestos sobre el subtotal (sin descuentos)
-                        tax_details = line.tax_id.compute_all(
-                            subtotal,
-                            order.currency_id,
-                            line.qty_delivered,
-                            product=line.product_id,
-                            partner=order.partner_id
-                        )
-                        # Aquí tomamos solo el total incluido en impuestos
-                        total_included = tax_details['total_included']
-                        log_lines.append(f"Impuestos calculados (line {line.id}): {total_included}")
+                        for tax in line.tax_id:
+                            # Obtenemos la tasa del impuesto (por ejemplo, 16% de IVA)
+                            tax_rate = tax.amount / 100.0
+                            # Calculamos el impuesto basado en la base (sin descuentos)
+                            tax_amount = subtotal * tax_rate
+                            log_lines.append(f"Impuesto calculado (line {line.id}): {tax_amount}")
+
+                            # El total con impuestos sería la base más el impuesto
+                            total_included = subtotal + tax_amount
+                            log_lines.append(f"Total con impuestos (line {line.id}): {total_included}")
                     else:
                         # Si no hay impuestos, el total es solo el subtotal
                         total_included = subtotal
