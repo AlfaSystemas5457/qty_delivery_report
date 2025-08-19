@@ -63,8 +63,10 @@ class SaleOrder(models.Model):
                     # Calcular el subtotal basado en lo entregado (sin descuentos)
                     subtotal = line.qty_delivered * price_with_discount
                     log_lines.append(f"Subtotal sin descuento (line {line.id}): {subtotal}")
-                    total_included = 0.0
                     
+                    # Inicializar el total de impuestos
+                    total_tax = 0.0
+
                     # Verificar si hay impuestos asignados
                     if line.tax_id:
                         for tax in line.tax_id:
@@ -72,11 +74,12 @@ class SaleOrder(models.Model):
                             tax_rate = tax.amount / 100.0
                             # Calculamos el impuesto basado en la base (sin descuentos)
                             tax_amount = subtotal * tax_rate
-                            log_lines.append(f"Impuesto calculado (line {line.id}): {tax_amount}")
+                            total_tax += tax_amount  # Sumar cada impuesto individual
+                            log_lines.append(f"Impuesto calculado (line {line.id}, tax {tax.name}): {tax_amount}")
 
-                            # El total con impuestos sería la base más el impuesto
-                            total_included = subtotal + tax_amount
-                            log_lines.append(f"Total con impuestos (line {line.id}): {total_included}")
+                        # El total con impuestos sería la base más la suma de todos los impuestos
+                        total_included = subtotal + total_tax
+                        log_lines.append(f"Total con impuestos (line {line.id}): {total_included}")
                     else:
                         # Si no hay impuestos, el total es solo el subtotal
                         total_included = subtotal
