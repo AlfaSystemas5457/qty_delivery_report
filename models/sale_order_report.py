@@ -53,120 +53,26 @@ class SaleOrder(models.Model):
             order.price_subtotal_qty_delivered = subtotal
 
     def _compute_price_total_qty_delivered(self):
-        log_lines = []
         for order in self:
             total = 0.0
             for line in order.order_line:
                 if line.qty_delivered > 0:
-                    # Calcular el precio con descuento
                     price_with_discount = line.price_unit * (1.0 - line.discount / 100.0)
-                    # Calcular el subtotal basado en lo entregado (sin descuentos)
                     subtotal = line.qty_delivered * price_with_discount
-                    log_lines.append(f"Subtotal sin descuento (line {line.id}): {subtotal}")
                     
-                    # Inicializar el total de impuestos
                     total_tax = 0.0
 
-                    # Verificar si hay impuestos asignados
                     if line.tax_id:
                         for tax in line.tax_id:
-                            # Obtenemos la tasa del impuesto (por ejemplo, 16% de IVA)
                             tax_rate = tax.amount / 100.0
-                            # Calculamos el impuesto basado en la base (sin descuentos)
                             tax_amount = subtotal * tax_rate
-                            total_tax += tax_amount  # Sumar cada impuesto individual
-                            log_lines.append(f"Impuesto calculado (line {line.id}, tax {tax.name}): {tax_amount}")
+                            total_tax += tax_amount 
 
-                        # El total con impuestos sería la base más la suma de todos los impuestos
                         total_included = subtotal + total_tax
-                        log_lines.append(f"Total con impuestos (line {line.id}): {total_included}")
                     else:
-                        # Si no hay impuestos, el total es solo el subtotal
                         total_included = subtotal
-                        log_lines.append(f"Sin impuestos, total incluido es el subtotal (line {line.id}): {total_included}")
 
-                    # Acumulamos el total después de impuestos (solo sumamos el total_included)
                     total += total_included
-                    log_lines.append(f"Total acumulado después de esta línea (line {line.id}): {total}")
-
-            # Asignamos el total calculado a price_total_qty_delivered
+                    
             order.price_total_qty_delivered = total
-            log_lines.append(f"Total final (order {order.id}): {order.price_total_qty_delivered}")
-
-        # Guardar los logs en un archivo txt
-        log_path = os.path.join(os.path.expanduser("~"), "qty_delivery_report_log.txt")
-        with open(log_path, "a", encoding="utf-8") as f:
-            for line in log_lines:
-                f.write(line + "\n")
-
-
-#     def _compute_price_total_qty_delivered(self):
-
-#         log_lines = []
-#         for order in self:
-#             total = 0.0
-#             for line in order.order_line:
-#                 if line.qty_delivered > 0:
-#                     # Calcular el subtotal basado en lo entregado (sin descuentos)
-#                     subtotal = line.qty_delivered * line.price_unit
-#                     log_lines.append(f"Subtotal sin descuento (line {line.id}): {subtotal}")
-
-#                     # Aplicar descuento sobre el subtotal
-#                     subtotal_after_discount = subtotal * (1 - (line.discount or 0.0) / 100.0)
-#                     log_lines.append(f"Subtotal después del descuento (line {line.id}): {subtotal_after_discount}")
-
-#                     # Verificar impuestos
-#                     if line.tax_id:
-#                         # Calcular impuestos sobre el subtotal después del descuento
-#                         tax_details = line.tax_id.compute_all(
-#                             subtotal_after_discount,
-#                             order.currency_id,
-#                             line.qty_delivered,
-#                             product=line.product_id,
-#                             partner=order.partner_id
-#                         )
-#                         total_included = tax_details['total_included']  # Total con impuestos
-#                         log_lines.append(f"Impuestos calculados (line {line.id}): {total_included}")
-#                     else:
-#                         # Si no hay impuestos, el total es solo el subtotal después del descuento
-#                         total_included = subtotal_after_discount
-#                         log_lines.append(f"Sin impuestos, total incluido es el subtotal (line {line.id}): {total_included}")
-
-#                     # Acumulamos el total después de impuestos
-#                     total += total_included
-#                     log_lines.append(f"Total acumulado después de esta línea (line {line.id}): {total}")
-
-#             # Asignamos el total calculado a price_total_qty_delivered
-#             order.price_total_qty_delivered = total
-#             log_lines.append(f"Total final (order {order.id}): {order.price_total_qty_delivered}")
-
-#         # Guardar los logs en un archivo txt
-#         log_path = os.path.join(os.path.expanduser("~"), "qty_delivery_report_log.txt")
-#         with open(log_path, "a", encoding="utf-8") as f:
-#             for line in log_lines:
-#                 f.write(line + "\n")
-
-
-
-# Subtotal sin descuento (line 16422): 2906.91
-# Subtotal después del descuento (line 16422): 2906.91
-# Impuestos (line 16422): {'taxes': [{'id': 2, 'name': 'IVA(16%) VENTAS', 'amount': 1395.32, 'base': 8720.73, 'sequence': 1, 'account_id': 23, 'refund_account_id': 23, 'analytic': False, 'price_include': False, 'tax_exigibility': 'on_payment'}], 'total_excluded': 8720.73, 'total_included': 10116.050000000001, 'base': 8720.73}
-# Impuestos calculados (line 16422): 10116.050000000001
-# Total acumulado después de esta línea (line 16422): 10116.050000000001
-# Subtotal sin descuento (line 16423): 69.0
-# Subtotal después del descuento (line 16423): 69.0
-# Impuestos (line 16423): {'taxes': [{'id': 2, 'name': 'IVA(16%) VENTAS', 'amount': 55.2, 'base': 345.0, 'sequence': 1, 'account_id': 23, 'refund_account_id': 23, 'analytic': False, 'price_include': False, 'tax_exigibility': 'on_payment'}], 'total_excluded': 345.0, 'total_included': 400.2, 'base': 345.0}
-# Impuestos calculados (line 16423): 400.2
-# Total acumulado después de esta línea (line 16423): 10516.250000000002
-# Total final (order 2832): 10516.250000000002
-# Subtotal sin descuento (line 16422): 2906.91
-# Subtotal después del descuento (line 16422): 2906.91
-# Impuestos (line 16422): {'taxes': [{'id': 2, 'name': 'IVA(16%) VENTAS', 'amount': 1395.32, 'base': 8720.73, 'sequence': 1, 'account_id': 23, 'refund_account_id': 23, 'analytic': False, 'price_include': False, 'tax_exigibility': 'on_payment'}], 'total_excluded': 8720.73, 'total_included': 10116.050000000001, 'base': 8720.73}
-# Impuestos calculados (line 16422): 10116.050000000001
-# Total acumulado después de esta línea (line 16422): 10116.050000000001
-# Subtotal sin descuento (line 16423): 69.0
-# Subtotal después del descuento (line 16423): 69.0
-# Impuestos (line 16423): {'taxes': [{'id': 2, 'name': 'IVA(16%) VENTAS', 'amount': 55.2, 'base': 345.0, 'sequence': 1, 'account_id': 23, 'refund_account_id': 23, 'analytic': False, 'price_include': False, 'tax_exigibility': 'on_payment'}], 'total_excluded': 345.0, 'total_included': 400.2, 'base': 345.0}
-# Impuestos calculados (line 16423): 400.2
-# Total acumulado después de esta línea (line 16423): 10516.250000000002
-# Total final (order 2832): 10516.250000000002
+            
