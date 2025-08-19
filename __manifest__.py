@@ -5,7 +5,7 @@
     'description': 'Agrega un reporte de por cantidad entregada en los pedidos de venta',
     'summary': 'Agrega un reporte de por cantidad entregada en los pedidos de venta',
     'author': 'DGV',
-    # 'website': '',
+    'website': 'https://github.com/AlfaSystemas5457/qty_delivery_report',
     'license': 'LGPL-3',
     'category': 'sale',
     'depends': [
