@@ -13,5 +13,6 @@
     ],
     'data': [
         'report/sales_report.xml',
+        'views/add_qty_delivered.xml',
     ],
 }

@@ -6,16 +6,23 @@ import os
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    price_subtotal_qty_delivered = fields.Float(
-        'Subtotal Qty Delivered', compute='_compute_price_subtotal_qty_delivered', store=False)
-    price_total_qty_delivered = fields.Float(
-        'Total Qty Delivered', compute='_compute_price_total_qty_delivered', store=False)
+    price_subtotal_qty_delivered = fields.Monetary(
+        'Subtotal Cantidad Entregada', compute='_compute_price_subtotal_qty_delivered', store=False)
+    price_total_qty_delivered = fields.Monetary(
+        'Total Cantidad Entregada', compute='_compute_price_total_qty_delivered', store=False)
+    amount_tax_qty_delivered = fields.Monetary(
+        'Impuesto Cantidad Entregada', compute='_compute_amount_tax_qty_delivered', store=False)
     
     qty_delivered_amount_by_group = fields.Binary(
-        string="Delivered Amount by Group", 
+        string="Importe Entregado por Grupo", 
         compute='_compute_qty_delivered_amount_by_group', 
-        help="Type: [(name, delivered amount, base, formatted delivered amount, formatted base)]"
+        help="Tipo: [(nombre, importe entregado, base, importe entregado formateado, base formateada)]"
     )
+    
+    @api.onchange('price_total_qty_delivered', 'price_subtotal_qty_delivered')
+    def _compute_amount_tax_qty_delivered(self):
+        for order in self:
+            order.amount_tax_qty_delivered = order.price_total_qty_delivered - order.price_subtotal_qty_delivered
     
     def _compute_qty_delivered_amount_by_group(self):
         for order in self:
