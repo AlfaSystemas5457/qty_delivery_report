@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <report
+        id="report_saleorder_excel"
+        model="sale.order"
+        string="Cotizacion de productos entregados (Excel)"
+        report_type="xlsx"
+        name="qty_delivery_report.report_saleorder_excel"
+        file="Cotizacion de productos entregados (Excel)"
+        attachment_use="False" />
+</odoo>

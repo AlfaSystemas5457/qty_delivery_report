@@ -9,10 +9,12 @@
     'license': 'LGPL-3',
     'category': 'sale',
     'depends': [
-        'sale'
+        'sale',
+        'report_xlsx',
     ],
     'data': [
         'report/sales_report.xml',
+        'report/excel_sale_report.xml',
         'views/add_qty_delivered.xml',
     ],
 }

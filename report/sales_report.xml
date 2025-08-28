@@ -254,12 +254,12 @@
     </template>
 
     <report
-        string="Cotizacion de productos entregados"
+        string="Cotizacion de productos entregados (PDF)"
         id="report_qty_sale_quotation"
         model="sale.order"
         report_type="qweb-pdf"
         name="qty_delivery_report.report_qty_salequotation"
-        file="qty_delivery_report.report_qty_salequotation"
+        file="Cotizacion de productos entregados (PDF)"
         print_report_name="(object.state in ('draft', 'sent') and 'Cotización - %s' % (object.name)) or 'Orden - %s' % (object.name)"
     />
 </odoo>
