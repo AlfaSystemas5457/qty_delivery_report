@@ -107,7 +107,7 @@ class ExcelSaleOrder(models.AbstractModel):
         for order in partners:
             sheet.merge_range(0, 0, 0, 1, f"{order.name}", title_header)
             sheet.write(1, 0, "Fecha:", title)
-            sheet.write(1, 1, order.date_order, date_format)
+            sheet.write(1, 1, order.create_date, date_format)
             
             sheet.write(2, 0, "Cliente:", title)
             sheet.write(2, 1, order.partner_id.name, text)
