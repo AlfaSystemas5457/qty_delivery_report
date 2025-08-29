@@ -1,6 +1,8 @@
 from functools import partial
 from odoo import models, fields, api
 from odoo.tools.misc import formatLang
+from pytz import timezone
+from datetime import datetime
 import os
 
 class SaleOrder(models.Model):
@@ -105,9 +107,16 @@ class ExcelSaleOrder(models.AbstractModel):
         sheet.set_column('I:I', 20)
         
         for order in partners:
+            fecha_local = fields.Datetime.context_timestamp(
+                    self.with_context(tz=self.env.user.tz),
+                    order.create_date
+                )
+            naive_dt = fecha_local.replace(tzinfo=None)
+            
             sheet.merge_range(0, 0, 0, 1, f"{order.name}", title_header)
             sheet.write(1, 0, "Fecha:", title)
-            sheet.write(1, 1, order.create_date, date_format)
+            sheet.write_datetime(1, 1, naive_dt, date_format)
+
             
             sheet.write(2, 0, "Cliente:", title)
             sheet.write(2, 1, order.partner_id.name, text)
