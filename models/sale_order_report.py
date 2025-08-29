@@ -95,8 +95,14 @@ class ExcelSaleOrder(models.AbstractModel):
         title_header = workbook.add_format({'bold': True, 'font_size': 20, 'align': 'center', 'valign': 'vcenter'})
         title = workbook.add_format({'bold': True, 'font_size': 16, 'align': 'center', 'valign': 'vcenter'})
         text = workbook.add_format({'font_size': 16, 'align': 'center', 'valign': 'vcenter'})
-        date_format = workbook.add_format({'num_format': 'd/m/yyyy', 'font_size': 16, 'align': 'center', 'valign': 'vcenter'})
-        currency_format = workbook.add_format({'num_format': '$#,##0.00','font_size': 16, 'align': 'center', 'valign': 'vcenter'})
+        date_format = workbook.add_format({'num_format': 'dd/mm/yyyy', 'font_size': 16, 'align': 'center', 'valign': 'vcenter'})
+        currency_format = workbook.add_format({'num_format': '[$$-80A]#,##0.00','font_size': 16, 'align': 'center', 'valign': 'vcenter'})
+        
+        sheet.set_column('A:B', 20)
+        sheet.set_column('D:E', 50)
+        sheet.set_column('F:G', 25)
+        sheet.set_column('H:H', 30)
+        sheet.set_column('I:I', 20)
         
         for order in partners:
             sheet.merge_range(0, 0, 0, 1, f"{order.name}", title_header)
@@ -127,12 +133,14 @@ class ExcelSaleOrder(models.AbstractModel):
                 
                 row += 1
             
-            sheet.write(5, 0, "Subtotal", title)
-            sheet.write(5, 1, order.price_subtotal_qty_delivered, currency_format)
+            sheet.merge_range(5, 0, 5, 1, "Entregado", title)
             
-            sheet.write(6, 0, "Impuestos", title)
-            sheet.write(6, 1, order.amount_tax_qty_delivered, currency_format)
+            sheet.write(6, 0, "Subtotal", title)
+            sheet.write(6, 1, order.price_subtotal_qty_delivered, currency_format)
             
-            sheet.write(7, 0, "Total", title)
-            sheet.write(7, 1, order.price_total_qty_delivered, currency_format)
+            sheet.write(7, 0, "Impuestos", title)
+            sheet.write(7, 1, order.amount_tax_qty_delivered, currency_format)
+            
+            sheet.write(8, 0, "Total", title)
+            sheet.write(8, 1, order.price_total_qty_delivered, currency_format)
             
