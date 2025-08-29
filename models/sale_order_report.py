@@ -64,25 +64,21 @@ class SaleOrder(models.Model):
             total = 0.0
             for line in order.order_line:
                 if line.qty_delivered > 0:
-                    price_with_discount = line.price_unit * (1.0 - line.discount / 100.0)
-                    subtotal = line.qty_delivered * price_with_discount
-                    
-                    total_tax = 0.0
-
                     if line.tax_id:
-                        for tax in line.tax_id:
-                            tax_rate = tax.amount / 100.0
-                            tax_amount = subtotal * tax_rate
-                            total_tax += tax_amount 
-
-                        total_included = subtotal + total_tax
+                        price_with_discount = line.price_unit * (1.0 - line.discount / 100.0)
+                        taxes = line.tax_id.compute_all(
+                            price_with_discount,
+                            quantity=line.qty_delivered,
+                            product=line.product_id,
+                            partner=order.partner_shipping_id
+                        )
+                        total_included = taxes['total_included']
                     else:
-                        total_included = subtotal
+                        total_included = line.qty_delivered * line.price_unit
 
                     total += total_included
                     
             order.price_total_qty_delivered = total
-            
 
 class ExcelSaleOrder(models.AbstractModel):
     _name = 'report.qty_delivery_report.report_saleorder_excel'
