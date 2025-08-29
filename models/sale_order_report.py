@@ -96,7 +96,7 @@ class ExcelSaleOrder(models.AbstractModel):
         """
         sheet = workbook.add_worksheet('Pedidos de Venta')
 
-        title_header = workbook.add_format({'bold': True, 'font_size': 24, 'align': 'center', 'valign': 'vcenter'})
+        title_header = workbook.add_format({'bold': True, 'font_size': 20, 'align': 'center', 'valign': 'vcenter'})
         title = workbook.add_format({'bold': True, 'font_size': 16, 'align': 'center', 'valign': 'vcenter'})
         text = workbook.add_format({'font_size': 16, 'align': 'center', 'valign': 'vcenter'})
         date_format = workbook.add_format({'num_format': 'd/m/yyyy', 'font_size': 16, 'align': 'center', 'valign': 'vcenter'})
