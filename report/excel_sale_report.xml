@@ -7,5 +7,6 @@
         report_type="xlsx"
         name="qty_delivery_report.report_saleorder_excel"
         file="Cotizacion de productos entregados (Excel)"
-        attachment_use="False" />
+        attachment_use="False"
+        print_report_name="'Orden - %s (Excel)' % (object.name)" />
 </odoo>
