@@ -1,12 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
-    <report
-        id="report_saleorder_excel"
-        model="sale.order"
-        string="Cotizacion de productos entregados (Excel)"
-        report_type="xlsx"
-        name="qty_delivery_report.report_saleorder_excel"
-        file="Cotizacion de productos entregados (Excel)"
-        attachment_use="False"
-        print_report_name="'Orden - %s (Excel)' % (object.name)" />
+    <record id="report_saleorder_excel"
+        model="ir.actions.report">
+        <field name="name">Cotización de productos entregados (Excel)</field>
+        <field name="model">sale.order</field>
+        <field name="report_name">qty_delivery_report.report_saleorder_excel</field>
+        <field name="report_file">Cotizacion de productos entregados (Excel)</field>
+        <field name="report_type">xlsx</field>
+        <field name="groups_id"
+            eval="[(4, ref('base.group_user'))]" />
+        <field name="binding_model_id"
+            ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+        <field name="attachment_use"
+            eval="False"/>
+        <field name="print_report_name">'Orden - %s (Excel)' % (object.name)</field>
+    </record>
 </odoo>

@@ -1,24 +1,67 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
-    <record id="view_order_form_inherit_sale" model="ir.ui.view">
+    <record id="view_order_form_inherit_sale"
+        model="ir.ui.view">
         <field name="name">sale.order.view.form.inherit</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form" />
-        <field name="arch" type="xml">
-            <xpath expr="//group[@name='sale_total']" position="after">
-                <group class="oe_subtotal_footer oe_right" colspan="2">
-                    <field name="price_subtotal_qty_delivered" widget="monetary"
-                        options="{'currency_field': 'currency_id'}" />
+        <field name="inherit_id"
+            ref="sale.view_order_form" />
+        <field name="arch"
+            type="xml">
+            <xpath expr="//group[@name='note_group']"
+                position="replace">
+                <group name="note_group"
+                    class="mt-2 mt-md-0 d-flex flex-wrap"
+                    col="12">
+                    <group colspan="6"
+                        class="order-1 order-lg-0">
+                        <field colspan="2"
+                            name="note"
+                            nolabel="1"
+                            placeholder="Terms and conditions..."/>
+                    </group>
 
-                    <field name="amount_tax_qty_delivered" widget="monetary"
-                        options="{'currency_field': 'currency_id'}" />
+                    <group name="delivered_totals"
+                        class="oe_subtotal_footer oe_right oe_no_separator order-0 order-lg-1 d-block"
+                        colspan="4">
 
-                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
-                        <label for="price_total_qty_delivered" />
-                    </div>
-                    <field name="price_total_qty_delivered" nolabel="1"
-                        class="oe_subtotal_footer_separator"
-                        widget="monetary" options="{'currency_field': 'currency_id'}" />
+                        <div class="o_subtotal_table d-flex flex-column w-100">
+                            <div class="d-flex justify-content-between p-0">
+                                <label for="price_subtotal_qty_delivered"
+                                    class="o_td_label text-nowrap"/>
+                                <field name="price_subtotal_qty_delivered"
+                                    nolabel="1"
+                                    widget="monetary"
+                                    options="{'currency_field': 'currency_id'}" />
+                            </div>
+                            <div class="d-flex justify-content-between p-0">
+                                <label for="amount_tax_qty_delivered"
+                                    class="o_td_label text-nowrap"/>
+                                <field name="amount_tax_qty_delivered"
+                                    nolabel="1"
+                                    widget="monetary"
+                                    options="{'currency_field': 'currency_id'}" />
+                            </div>
+                            <div class="d-flex justify-content-between p-0 border-top pt-1 mt-1">
+                                <label for="price_total_qty_delivered"
+                                    class="o_td_label text-nowrap"/>
+                                <field name="price_total_qty_delivered"
+                                    nolabel="1"
+                                    widget="monetary"
+                                    class="fw-bold"
+                                    options="{'currency_field': 'currency_id'}" />
+                            </div>
+                        </div>
+                    </group>
+
+                    <group class="oe_subtotal_footer order-0 order-lg-1 d-block"
+                        colspan="2"
+                        name="sale_total">
+                        <field name="tax_totals"
+                            widget="account-tax-totals-field"
+                            nolabel="1"
+                            readonly="1"/>
+                    </group>
                 </group>
             </xpath>
         </field>
